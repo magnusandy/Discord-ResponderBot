@@ -10,6 +10,7 @@ import randPhrases
 client = discord.Client()
 
 #-----------------------------HANGMAN Start
+isHangmanEnabled = True
 hangmanMessagePrefix = '```Hangman\n'
 hangmanMessageSuffix = '```'
 hangmanMaxTries = 6
@@ -17,11 +18,22 @@ hangmanGuessCommand = '!hangmanGuess '
 hangmanGuessAllCommand = '!hangmanGuessAll '
 hangmanStartCommand = '!hangmanStart'
 hangmanHelpCommand = '!hangmanHelp'
+hangmanToggleCommand = '!hangmanToggle'
 
 hangmanIsStarted = False
 hangmanPuzzle = [] #will be array of tuples, (letter char, visible bool)
 hangmanCurrentGuesses = []
 hangmanCurrentTries = 0
+
+#disables the hangman module
+def hangmanToggle():
+    global isHangmanEnabled
+    resetHangman()
+    isHangmanEnabled = not isHangmanEnabled
+    if isHangmanEnabled:
+        return "hangman has been enabled"
+    else:
+        return "hangman is now disabled"
 
 #starts a new hangman puzzle, or displays the current puzzle
 def hangmanStart():
@@ -229,14 +241,17 @@ async def on_ready():
 @client.event
 async def on_message(message):
     messageToSend = ''
-    if message.content == hangmanStartCommand:
+    #hangmanCommands
+    if message.content == hangmanStartCommand and isHangmanEnabled:
         messageToSend = hangmanStart()
-    elif message.content.startswith(hangmanGuessCommand):
+    elif message.content.startswith(hangmanGuessCommand) and isHangmanEnabled:
         messageToSend = hangmanGuess(message.content)
-    elif message.content.startswith(hangmanGuessAllCommand):
+    elif message.content.startswith(hangmanGuessAllCommand) and isHangmanEnabled:
         messageToSend = hangmanGuessAll(message.content)
-    elif message.content == hangmanHelpCommand:
+    elif message.content == hangmanHelpCommand and isHangmanEnabled:
         messageToSend = hangmanHelp()
+    elif message.content == hangmanToggleCommand:
+        messageToSend = hangmanToggle()
     elif message.content == ('!8ball'):
         messageToSend = roll8Ball()
     elif message.content.startswith('!yhadd '):
